@@ -39,6 +39,7 @@ public:
   {}
   static void OnPlayFinished([[maybe_unused]] DfMp3& mp3, [[maybe_unused]] DfMp3_PlaySources source, uint16_t track)
   {
+    Serial.println("OnPlayFinished");
     mp3.playMp3FolderTrack(track);   
   }
   static void OnPlaySourceOnline([[maybe_unused]] DfMp3& mp3, DfMp3_PlaySources source)
@@ -60,29 +61,20 @@ Servo myServo;
 int track = -1;
 void playNonScrayMusic(){
   if ( track != 1){
-    mp3.setVolume(15);
-    mp3.playMp3FolderTrack(12);            
+    mp3.setVolume(18);
+    mp3.playMp3FolderTrack(1);            
     myServo.write(0);
     track = 1;
-    delay(300);
+    delay(500);
   }
 }
 void playScreem(){
   if ( track != 2 ){
-    mp3.setVolume(20);
+    mp3.setVolume(18);
     mp3.playMp3FolderTrack(10);    
     myServo.write(90);
     track = 2;
-    delay(300);        
-  }
-}
-void playScaryMusic(){
-  if ( track != 3){
-    mp3.setVolume(17);
-    mp3.playMp3FolderTrack(11);
-    track=3;
-    myServo.write(45);
-    delay(300);
+    delay(500);        
   }
 }
 void stopMusic(){
@@ -90,11 +82,13 @@ void stopMusic(){
     mp3.stop();
     track=4;
     myServo.write(0);
-    delay(300);
+    delay(500);
   }
 }
 void setup() 
 {  
+  // Serial.begin(9600);
+  // Serial.println("Initializing...");
   mp3.begin();  
   // Set the UltraSonic sensor pins.
   pinMode(Echo, INPUT);    
@@ -103,23 +97,17 @@ void setup()
   // Attach Servo to ServoPin
   myServo.attach(ServoPin);
 }
-#define BUFF 1
-#define NEAR 2.5      // Value in inches
-#define IN_RANGE 5.0  // Value in inches
-#define FAR 7.0       // Value in inches
+#define IN_RANGE 3.0  // Value in inches
 
 void loop() 
 {
   float distance = distanceFT();
-  if ( distance <= NEAR ){
+  // Serial.println(distance);
+  if ( distance <= IN_RANGE){
     playScreem();
-  }else if ( distance <= IN_RANGE && distance > (NEAR + BUFF )){
-    playScaryMusic();
-  }else if ( distance <= FAR && distance > ( IN_RANGE + BUFF ) ){
+  }else{
     playNonScrayMusic();
-  }else if ( distance > (FAR+BUFF) ) {
-    stopMusic();
   }  
-  mp3.loop();
-  delay(10);
+  delay(100);
+  mp3.loop();  
 }
